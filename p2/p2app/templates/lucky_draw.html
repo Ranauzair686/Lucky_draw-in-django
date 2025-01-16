@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Draw</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        #display {
+            font-size: 24px;
+            font-weight: bold;
+            color: green;
+            margin: 20px auto;
+            border: 2px solid #333;
+            padding: 20px;
+            width: 50%;
+        }
+        table {
+            margin: 20px auto;
+            width: 50%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lucky Draw</h1>
+
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+
+    {% if not records %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="file">Upload Excel File:</label>
+            <input type="file" name="file" id="file" accept=".xls,.xlsx" required>
+            <button type="submit">Upload</button>
+        </form>
+    {% else %}
+        <div id="display">Press "Start" to begin!</div>
+        <button id="start" onclick="startDraw()">Start</button>
+        {% comment %} <button id="stop" onclick="stopDraw()" disabled>Stop</button> {% endcomment %}
+    {% endif %}
+
+    {% if records %}
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Department</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+                <tr>
+                    <td>{{ record.Name }}</td>
+                    <td>{{ record.Department }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <script>
+        {% if records %}
+        let records = {{ records|safe }};
+        let interval = null;
+        let display = document.getElementById("display");
+        let startButton = document.getElementById("start");
+        let stopButton = document.getElementById("stop");
+        stopButton.disabled = false;
+
+        function startDraw() {
+            let interval = setInterval(() => {
+                let randomIndex = Math.floor(Math.random() * records.length);
+                let record = records[randomIndex];
+                display.textContent = `${record.Name} - ${record.Department}`;
+            }, 50);
+
+            setInterval(() =>{
+                clearInterval(interval);
+
+            }, 1000 )
+        }
+    
+
+    
+        {% endif %}
+    </script>
+</body>
+</html>
+
+
+
+            
+
